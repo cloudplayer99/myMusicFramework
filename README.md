@@ -1,0 +1,2 @@
+# myMusicFramework
+use JUCE
