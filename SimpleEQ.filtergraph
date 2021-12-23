@@ -12,7 +12,7 @@
         <BUS index="0" layout="disabled"/>
       </INPUTS>
       <OUTPUTS>
-        <BUS index="0" layout="L R"/>
+        <BUS index="0" layout="disabled"/>
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
@@ -34,7 +34,7 @@
   <FILTER uid="3" x="0.50125" y="0.8991935483870968">
     <PLUGIN name="Audio Output" descriptiveName="" format="Internal" category="I/O devices"
             manufacturer="JUCE" version="1.0" file="" uniqueId="724248cb"
-            isInstrument="0" fileTime="0" infoUpdateTime="0" numInputs="2"
+            isInstrument="0" fileTime="0" infoUpdateTime="0" numInputs="0"
             numOutputs="0" isShell="0" uid="724248cb"/>
     <STATE>0.</STATE>
     <LAYOUT>
@@ -65,7 +65,7 @@
           uiLastY_Normal="481" uiopen_Normal="0">
     <PLUGIN name="SimpleEQ" format="VST3" category="Fx" manufacturer="yourcompany"
             version="1.0.0" file="E:\MusicFramework\Projects\SimpleEQ\Builds\VisualStudio2019\x64\Debug\VST3\SimpleEQ.vst3"
-            uniqueId="298db2a" isInstrument="0" fileTime="17ddadf3f4f" infoUpdateTime="17ddb278b9b"
+            uniqueId="298db2a" isInstrument="0" fileTime="17de5400cf8" infoUpdateTime="17de54aa0c7"
             numInputs="2" numOutputs="2" isShell="0" uid="e95aa120"/>
     <STATE>191.VMjLgXK....O+fWarAhckI2bo8la8HRLt.iHfTlai8FYo41Y8HRUTYTK3HxO9.BOVMEUy.Ea0cVZtMEcgQWY9vSRC8Vav8lak4Fc9XCLt3hKt3hKt3hKt3hYRUUSTEETIckVwTjQisVTTgkdEYjKAQjYPQSPWgUdMcjKAQjct3hdA4hKt3hKt3hKtnTUv.UQAslXuk0UXoWUFE0YQcEV77RRC8Vav8lak4Fc9vyKVMEUy.Ea0cVZtMEcgQWY9..</STATE>
     <LAYOUT>
@@ -77,8 +77,6 @@
       </OUTPUTS>
     </LAYOUT>
   </FILTER>
-  <CONNECTION srcFilter="1" srcChannel="0" dstFilter="5" dstChannel="0"/>
-  <CONNECTION srcFilter="1" srcChannel="1" dstFilter="5" dstChannel="1"/>
   <CONNECTION srcFilter="5" srcChannel="0" dstFilter="3" dstChannel="0"/>
   <CONNECTION srcFilter="5" srcChannel="1" dstFilter="3" dstChannel="1"/>
 </FILTERGRAPH>
