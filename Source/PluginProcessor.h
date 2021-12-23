@@ -10,6 +10,8 @@
 
 #include <JuceHeader.h>
 
+/*********************** my code here ************************************/
+
 struct ChainSettings
 {
     float peakFreq{ 0 }, peakGainInDecibels{ 0 }, peakQuality{ 1.f };
@@ -18,6 +20,8 @@ struct ChainSettings
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+/*************************************************************************/
 
 //==============================================================================
 /**

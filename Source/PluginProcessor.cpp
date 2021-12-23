@@ -96,7 +96,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    // my code here
+    /*********************** my code here ************************************/
     juce::dsp::ProcessSpec spec;
 
     spec.maximumBlockSize = samplesPerBlock;
@@ -108,6 +108,8 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     leftChain.prepare(spec);
     rightChain.prepare(spec);
 
+    // Initial settings
+    
     auto chainSettings = getChainSettings(apvts);
 
     auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate,
@@ -117,6 +119,8 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     
     *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
     *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+
+    /*************************************************************************/
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -169,6 +173,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     /****************************** my code here ******************************/
     
     // copy from prepareToPlay
+    // set in process
     auto chainSettings = getChainSettings(apvts);
 
     auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
@@ -244,6 +249,7 @@ Cut Bands: Controllable Frequency/Slope
 Parametric Band: Controllable Frequency, Gain, Quality
 */
 
+// get Settings
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
     ChainSettings settings;
@@ -251,6 +257,7 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     // apvts.getParameter("LowCut Freq")->getValue(); // normalized values
 
     // real-world values
+    // get setting values
     settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
     settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
     settings.peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
@@ -270,17 +277,17 @@ SimpleEQAudioProcessor::createParameterLayout()
     // Creates a NormalisableRange with a given range, interval and skew factor.
     layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
                                                            "LowCut Freq",
-                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
                                                             20.f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
                                                            "HighCut Freq",
-                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
                                                             20000.f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
                                                            "Peak Freq",
-                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f),
+                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
                                                             750.f));   
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
@@ -291,7 +298,7 @@ SimpleEQAudioProcessor::createParameterLayout()
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Quality",
                                                            "Peak Quality",
                                                             juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
-                                                            1.0f));
+                                                            1.0f)); // Q > 0
 
     juce::StringArray stringArray;
     for (int i = 0; i < 4; ++i)
