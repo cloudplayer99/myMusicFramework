@@ -208,7 +208,9 @@ juce::AudioProcessorEditor* SimpleEQAudioProcessor::createEditor()
 {
     //return new SimpleEQAudioProcessorEditor (*this);
     // my code here
-    return new juce::GenericAudioProcessorEditor(*this);
+    // return new juce::GenericAudioProcessorEditor(*this);
+
+    return new SimpleEQAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -217,12 +219,27 @@ void SimpleEQAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    // my code here
+    // write the state to the memory block
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
+    
 }
 
 void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+
+    // my code here
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if ( tree.isValid() )
+    {
+        apvts.replaceState(tree);
+        updateFilters();
+    }
+    // we should be able to tweak the parameters and then it will be restored.
 }
 
 // my code here
