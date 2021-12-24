@@ -31,6 +31,19 @@ struct ChainSettings
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+using Filter = juce::dsp::IIR::Filter<float>;
+
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
+enum ChainPositions
+{
+    LowCut,
+    Peak,
+    HighCut
+};
+
 /*************************************************************************/
 
 //==============================================================================
@@ -86,20 +99,14 @@ private:
 
     // my code here
     // let's create some type aliases to eliminate a lot of those namespace and template definitions
-    using Filter = juce::dsp::IIR::Filter<float>;
-
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    // using Filter = juce::dsp::IIR::Filter<float>;
+    // using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+    // using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+    // enum ChainPositions
+    // we need to give the editor its own instance of the mono chain
+    // to do that, we need to make all of the stuff that makes the mono chain public
 
     MonoChain leftChain, rightChain;
-
-    enum ChainPositions
-    {
-        LowCut,
-        Peak,
-        HighCut
-    };
 
     // update the coefficients of Peak Filter
     void updatePeakFilter(const ChainSettings& chainSettings);
