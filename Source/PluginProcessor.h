@@ -44,6 +44,11 @@ enum ChainPositions
     HighCut
 };
 
+using Coefficients = Filter::CoefficientsPtr; /** CoefficientsPtr: A typedef for a ref-counted pointer to the coefficients object */
+void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+Coefficients makePeakFilter(const ChainSettings& chainSettings, double sampleRate);
+
 /*************************************************************************/
 
 //==============================================================================
@@ -110,8 +115,10 @@ private:
 
     // update the coefficients of Peak Filter
     void updatePeakFilter(const ChainSettings& chainSettings);
-    using Coefficients = Filter::CoefficientsPtr; /** CoefficientsPtr: A typedef for a ref-counted pointer to the coefficients object */
-    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+    // refactored Peak coefficient generation
+    // move to the top
+    //using Coefficients = Filter::CoefficientsPtr; /** CoefficientsPtr: A typedef for a ref-counted pointer to the coefficients object */
+    //static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
     // template function update
     template<int Index, typename ChainType, typename CoefficientType>
