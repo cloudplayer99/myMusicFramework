@@ -36,6 +36,7 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
         param->addListener(this);
     }
 
+    // start timer
     startTimerHz(60);
 
     // control the window size
