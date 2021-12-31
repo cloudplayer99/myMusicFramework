@@ -12,6 +12,10 @@
 
 /*********************** my code here ************************************/
 
+// D.R.Y. Don't Repeat Yourself
+// If you find the same line written twice in your code,
+// that is an example of bad design and you should refactor your code.
+
 enum Slope
 {
     Slope_12,
@@ -67,6 +71,7 @@ void updateCutFilter(ChainType& chain,
     //const ChainSettings& chainSettings)
     const Slope& lowCutSlope)
 {
+    // makeLowCutFilter & makeHighCutFilter
     //auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
     //                                                                                               getSampleRate(),
     //                                                                                               2 * (chainSettings.lowCutSlope + 1));
@@ -86,6 +91,9 @@ void updateCutFilter(ChainType& chain,
     chain.template setBypassed<3>(true);
 
     //switch (chainSettings.lowCutSlope)
+    // update function
+    // updateCoefficients(chain.template get<Index>().coefficients, coefficients[Index]);
+    // chain.template setBypassed<Index>(false);
     switch (lowCutSlope)
     {
     case Slope_48:
@@ -185,8 +193,6 @@ private:
     // move to the top
     //using Coefficients = Filter::CoefficientsPtr; /** CoefficientsPtr: A typedef for a ref-counted pointer to the coefficients object */
     //static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
-
-    
 
     void updateLowCutFilters(const ChainSettings& chainSettings);
     void updateHighCutFilters(const ChainSettings& chainSettings);
