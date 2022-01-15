@@ -64,6 +64,13 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderbounds();
 
+    g.setColour(Colours::red);
+    g.drawRect(getLocalBounds());
+    g.setColour(Colours::yellow);
+    g.drawRect(sliderBounds);
+    // They still overlap
+    // let's change the function getSliderbounds()
+
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
                                       sliderBounds.getY(),
@@ -78,7 +85,22 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderbounds() const
 {
-    return getLocalBounds();
+    // understand each step 
+    auto bounds = getLocalBounds();
+
+    auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
+    // min{width, height}
+
+    size -= getTextHeight() * 2;
+    juce::Rectangle<int> r;
+    r.setSize(size, size);
+    // square
+    r.setCentre(bounds.getCentreX(), 0);
+    // changes the position of the rectangle's centre (leaving its size unchanged).
+    r.setY(2); 
+    // pos.y = newY;
+
+    return r;
 }
 
 //==============================================================================
