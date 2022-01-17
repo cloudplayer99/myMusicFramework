@@ -84,12 +84,16 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderbounds();
 
-    g.setColour(Colours::red);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::yellow);
-    g.drawRect(sliderBounds);
+    /************************ Auxiliary line ***************************/
+
+    //g.setColour(Colours::red);
+    //g.drawRect(getLocalBounds());
+    //g.setColour(Colours::yellow);
+    //g.drawRect(sliderBounds);
+
     // They still overlap
     // let's change the function getSliderbounds()
+    /*******************************************************************/
 
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
@@ -105,6 +109,9 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderbounds() const
 {
+    //return getLocalBounds();
+    // change the function getSliderbounds()
+
     // understand each step 
     auto bounds = getLocalBounds();
 
@@ -125,7 +132,47 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderbounds() const
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
-    return juce::String(getValue()); // Display the slider's current value
+    // return juce::String(getValue()); // Display the slider's current value
+    // we want better getDisplayString() function!
+
+    // choice: lowCutSlope & highCutSlope
+    if ( auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param) )
+        return choiceParam->getCurrentChoiceName();
+    //else
+    //return juce::String(getValue());
+
+    juce::String str;
+    // if the value is more than 1000, use "k" to represent it. 
+    bool addK = false;
+    if ( auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param) )
+    {
+        float val = getValue();
+
+        if ( val > 999.f )
+        {
+            val /= 1000.f;
+            addK = true;
+        }
+
+        str = juce::String(val, (addK ? 2 : 0));
+        // String(float floatValue, int numberOfDecimalPlaces, bool useScientificNotation = false);
+        // Creates a string representing this floating-point number.
+    }
+
+    else
+    {
+        jassertfalse; // this shouldn't happen!
+    }
+
+    // if the suffix is not empty, then append it to the str;(if "k" exists, add it too;)
+    if ( suffix.isNotEmpty() )
+    {
+        str << " ";
+        if( addK ) str << "k";
+        str << suffix;
+    }
+
+    return str;
 }
 
 //==============================================================================
