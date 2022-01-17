@@ -60,7 +60,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
         auto strWidth = g.getCurrentFont().getStringWidth(text);
         
         // TextBox
-        // r.setSize(strWidth, rswl->getTextHeight());
+        // r.setSize(g.getCurrentFont().getStringWidth(text), rswl->getTextHeight());
         r.setSize(strWidth + 4, rswl->getTextHeight() + 2);
         r.setCentre(bounds.getCentre());
 
@@ -95,6 +95,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
     // let's change the function getSliderbounds()
     /*******************************************************************/
 
+    // draw the rotary slider 
     getLookAndFeel().drawRotarySlider(g,
                                       sliderBounds.getX(),
                                       sliderBounds.getY(),
@@ -105,6 +106,39 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                       endAng,
                                       *this);
 
+    /*******************************************************************/
+    // add the labels that will show the minimum and maximum values
+    // that our parameters can have.
+    // the minimum value would be drawn right outside of that seven o'clock position on the slider
+    // and the maximum value to be drawn outside of the five o'clock position
+
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.getWidth() * 0.5f;
+
+    g.setColour(Colour(0u, 172u, 1u));
+    g.setFont(getTextHeight());
+
+    auto numChoices = labels.size();
+    for ( int i = 0; i < numChoices; ++i)
+    {
+        auto pos = labels[i].pos;
+        jassert(0.f <= pos);
+        jassert(pos <= 1.f);
+
+        // Remaps a value from a source range to a target range.
+        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
+
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, ang);
+
+        Rectangle<float> r;
+        auto str = labels[i].label;
+        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setCentre(c);
+        r.setY(r.getY() + getTextHeight());
+
+        g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
+    }
+    /*******************************************************************/
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderbounds() const
@@ -343,6 +377,28 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
 
+    // initialize the min/max labels outside the slider
+    peakFreqSlider.labels.add({ 0.f, "20Hz" });
+    peakFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    peakGainSlider.labels.add({ 0.f, "-24dB" });
+    peakGainSlider.labels.add({ 1.f, "+24dB" });
+
+    peakQualitySlider.labels.add({ 0.f, "0.1" });
+    peakQualitySlider.labels.add({ 1.f, "10.0" });
+
+    lowCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    lowCutFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    highCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    highCutFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    lowCutSlopeSlider.labels.add({ 0.f, "12" });
+    lowCutSlopeSlider.labels.add({ 1.f, "48" });
+
+    highCutSlopeSlider.labels.add({ 0.f, "12" });
+    highCutSlopeSlider.labels.add({ 1.f, "48" });
+
     // Constructor
     for ( auto* comp : getComps() )
     {
@@ -350,7 +406,7 @@ highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlope
     }
 
     // control the window size
-    setSize (600, 400);
+    setSize (600, 480);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -386,10 +442,14 @@ void SimpleEQAudioProcessorEditor::resized()
     // adjust positions of subcomponents
     
     auto bounds = getLocalBounds();
-    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    float hRatio = 25.f / 100.f; //JUCE_LIVE_CONSTANT(33) / 100.f;
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
 
     responseCurveComponent.setBounds(responseArea);
     // Changes the component's position and size.
+
+    // a little narrow, create some empty space
+    bounds.removeFromTop(5);
 
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
