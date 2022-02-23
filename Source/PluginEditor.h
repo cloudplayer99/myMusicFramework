@@ -103,6 +103,7 @@ juce::Timer
     void timerCallback() override;
 
     void paint(juce::Graphics& g) override;
+    void resized() override;
 
 private:
     SimpleEQAudioProcessor& audioProcessor;
@@ -114,6 +115,10 @@ private:
 
     void updateChain(); // refactor the code 
    
+    // draw the grid's background
+    juce::Image background;
+    juce::Rectangle<int> getRenderArea(); // don't want use getLocalBounds(), want smaller
+    juce::Rectangle<int> getAnalysisArea(); // even smaller than getRenderArea()
 };
 
 /**************************************************************************************/
