@@ -410,7 +410,7 @@ void ResponseCurveComponent::resized()
         // auto normX = mapFromLog10(f, 20.f, 20000.f);
 
         // g.drawVerticalLine(getWidth() * normX, 0.f, getHeight());
-        g.drawVerticalLine(x, top, bottom);
+        g.drawVerticalLine(x, top, bottom);// draw the line
     }
 
     // Vertical axis value(gain)
@@ -424,8 +424,8 @@ void ResponseCurveComponent::resized()
         // auto y = jmap(gDb, -24.f, 24.f, float(getHeight()), 0.f);
         auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
         // g.drawHorizontalLine(y, 0, getWidth());
-        g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::dimgrey);
-        g.drawHorizontalLine(y, left, right);
+        g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::darkgrey);//dimgrey
+        g.drawHorizontalLine(y, left, right);// draw the line
     }
 
     // g.drawRect(getRenderArea());
@@ -460,6 +460,26 @@ void ResponseCurveComponent::resized()
         r.setSize(textWidth, fontHeight);
         r.setCentre(x, 0);
         r.setY(1);
+
+        g.drawFittedText(str, r, juce::Justification::centred, 1);
+    }
+
+    for (auto gDb : gain)
+    {
+        auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
+
+        String str;
+        if ( gDb > 0 ) str << "+";
+        str << gDb;
+
+        auto textWidth = g.getCurrentFont().getStringWidth(str);
+
+        Rectangle<int> r;
+        r.setSize(textWidth, fontHeight);
+        r.setX(getWidth() - textWidth);// the labels are on the right side
+        r.setCentre(r.getCentreX(), y);
+
+        g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::lightgrey);
 
         g.drawFittedText(str, r, juce::Justification::centred, 1);
     }
