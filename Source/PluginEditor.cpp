@@ -307,7 +307,7 @@ void ResponseCurveComponent::timerCallback()
     /* 
     48000 / 2048 = 23hz  <- this is the bin width
     */
-    const auto binwidth = audioProcessor.getSampleRate() / (double)fftSize;
+    const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
 
     // if we have more than zero fft blocks available 
     while ( leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0 )
@@ -316,7 +316,7 @@ void ResponseCurveComponent::timerCallback()
         // let try to pull one
         if ( leftChannelFFTDataGenerator.getFFTData(fftData) ) 
         {
-            pathProducer.generatePath(fftData, fftBounds, fftSize, binwidth, -48.f);
+            pathProducer.generatePath(fftData, fftBounds, fftSize, binWidth, -48.f);
         }
     }
 
@@ -450,8 +450,9 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     }
 
     // draw FFTcurve before we draw our rendered area
-    g.setColour(Colours::blue);
-    g.strokePath(leftChannelFFTPath, PathStrokeType(1));
+    leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    g.setColour(Colours::skyblue);
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
 
     // draw
     g.setColour(Colours::orange);

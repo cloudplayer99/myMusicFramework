@@ -109,10 +109,10 @@ struct AnalyzerPathGenerator
      converts 'renderData[]' into a juce::Path
      */
     void generatePath(const std::vector<float>& renderData,
-        juce::Rectangle<float> fftBounds,
-        int fftSize,
-        float binWidth,
-        float negativeInfinity)
+                     juce::Rectangle<float> fftBounds,
+                     int fftSize,
+                     float binWidth,
+                     float negativeInfinity)
     {
         auto top = fftBounds.getY();
         auto bottom = fftBounds.getHeight();
@@ -126,13 +126,13 @@ struct AnalyzerPathGenerator
         auto map = [bottom, top, negativeInfinity](float v)
         {
             return juce::jmap(v,
-                negativeInfinity, 0.f,
-                float(bottom + 10), top);
+                              negativeInfinity, 0.f,
+                              float(bottom), top);
         };
 
         auto y = map(renderData[0]);
 
-        //        jassert( !std::isnan(y) && !std::isinf(y) );
+        //jassert( !std::isnan(y) && !std::isinf(y) );
         if (std::isnan(y) || std::isinf(y))
             y = bottom;
 
@@ -144,7 +144,7 @@ struct AnalyzerPathGenerator
         {
             y = map(renderData[binNum]);
 
-            //            jassert( !std::isnan(y) && !std::isinf(y) );
+            //jassert( !std::isnan(y) && !std::isinf(y) );
 
             if (!std::isnan(y) && !std::isinf(y))
             {
