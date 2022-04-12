@@ -234,6 +234,30 @@ private:
     juce::String suffix;
 };
 
+
+struct PathProducer
+{
+    PathProducer(SingleChannelSampleFifo<SimpleEQAudioProcessor::BlockType>& scsf) :
+    leftChannelFifo(&scsf)
+    {
+        leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+        monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+    }
+    void process(juce::Rectangle<float> fftBounds, double sampleRate);
+    juce::Path getPath() { return leftChannelFFTPath; }
+private:
+    SingleChannelSampleFifo<SimpleEQAudioProcessor::BlockType>* leftChannelFifo;
+
+    juce::AudioBuffer<float> monoBuffer;
+
+    FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
+
+    AnalyzerPathGenerator<juce::Path> pathProducer;
+
+    juce::Path leftChannelFFTPath;
+};
+
+
 // the components should not draw outside its bounds
 // so it(response area) should have its own components
 struct ResponseCurveComponent : juce::Component,
@@ -280,16 +304,13 @@ private:
     juce::Rectangle<int> getRenderArea(); // don't want use getLocalBounds(), want smaller
     juce::Rectangle<int> getAnalysisArea(); // even smaller than getRenderArea()
 
-    // A point
-    SingleChannelSampleFifo<SimpleEQAudioProcessor::BlockType>* leftChannelFifo;
 
-    juce::AudioBuffer<float> monoBuffer;
-
-    FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
-
-    AnalyzerPathGenerator<juce::Path> pathProducer;
-
-    juce::Path leftChannelFFTPath;
+    //SingleChannelSampleFifo<SimpleEQAudioProcessor::BlockType>* leftChannelFifo;
+    //juce::AudioBuffer<float> monoBuffer;
+    //FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
+    //AnalyzerPathGenerator<juce::Path> pathProducer;
+    //juce::Path leftChannelFFTPath;
+    PathProducer leftPathProducer, rightPathProducer;
 
 };
 

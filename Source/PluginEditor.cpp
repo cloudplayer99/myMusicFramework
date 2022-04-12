@@ -212,7 +212,9 @@ juce::String RotarySliderWithLabels::getDisplayString() const
 //==============================================================================
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : 
 audioProcessor(p),
-leftChannelFifo(&audioProcessor.leftChannelFifo)
+//leftChannelFifo(&audioProcessor.leftChannelFifo)
+leftPathProducer(audioProcessor.leftChannelFifo),
+rightPathProducer(audioProcessor.rightChannelFifo)
 {
     // Constructor
     const auto& params = audioProcessor.getParameters();
@@ -222,8 +224,9 @@ leftChannelFifo(&audioProcessor.leftChannelFifo)
     }
     
     /* 48000 / 2048 = 23hz one bin */
-    leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
-    monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+    //leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+    //monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+    // move to the PathProducer Constructor
 
     // when first open the GUI, the curve should work
     updateChain();
@@ -247,8 +250,11 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
     parametersChanged.set(true);
 }
 
-// familiar timer !
-void ResponseCurveComponent::timerCallback()
+
+// move the code from timerCallback() to process()
+// and call process() in timerCallback()
+// notice "left" represents the general situation
+void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 {
     // while there are buffers to pull
     // if we can pull a buffer
@@ -301,13 +307,14 @@ void ResponseCurveComponent::timerCallback()
         if we can pull a buffer
             generate a path
     */
-    const auto fftBounds = getAnalysisArea().toFloat();
+    //const auto fftBounds = getAnalysisArea().toFloat();
     const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
 
     /* 
     48000 / 2048 = 23hz  <- this is the bin width
     */
-    const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+    //const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+    const auto binWidth = sampleRate / (double)fftSize;
 
     // if we have more than zero fft blocks available 
     while ( leftChannelFFTDataGenerator.getNumAvailableFFTDataBlocks() > 0 )
@@ -331,6 +338,23 @@ void ResponseCurveComponent::timerCallback()
     {
         pathProducer.getPath(leftChannelFFTPath);
     }
+
+}
+
+
+// familiar timer !
+void ResponseCurveComponent::timerCallback()
+{
+    /***************************************************************************/
+    // call our process function
+    auto fftBounds = getAnalysisArea().toFloat();
+    auto sampleRate = audioProcessor.getSampleRate();
+
+    leftPathProducer.process(fftBounds, sampleRate);
+    rightPathProducer.process(fftBounds, sampleRate);
+
+    /***************************************************************************/
+
 
     // if the parameter has changed
     // we need to set the flag back to false
@@ -450,9 +474,16 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     }
 
     // draw FFTcurve before we draw our rendered area
+    // left Channel
+    auto leftChannelFFTPath = leftPathProducer.getPath();
     leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
     g.setColour(Colours::skyblue);
     g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+    // Right Channel
+    auto rightChannelFFTPath = rightPathProducer.getPath();
+    rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    g.setColour(Colours::lightyellow);
+    g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
 
     // draw
     g.setColour(Colours::orange);
