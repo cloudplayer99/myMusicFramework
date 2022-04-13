@@ -129,7 +129,7 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
         // draw ellipse
         g.drawEllipse(r, 2);
 
-        // little bug:
+        // A little bug:
         // click the whole region and the button is still response
         // we need to set the hit test region
         // but we don't do that
@@ -852,6 +852,15 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
             comp->responseCurveComponent.toggleAnalysisEnablement(enabled);
         }
     };
+
+    // A little bug:
+    // when you turn off the bypass button and close the SimpleEQ
+    // and you reopen it, you will find that the sliders don't turn grey as we expected
+    // and the sliders can still use as normal
+    // maybe call this bug "initial problem"
+    // we should record the state of the buttons
+    // and coordinate these with the enablement
+
 
     // control the window size
     setSize (600, 480);
