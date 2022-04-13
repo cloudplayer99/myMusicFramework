@@ -144,20 +144,11 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
         auto bounds = toggleButton.getLocalBounds();
         g.drawRect(bounds);
         
-        auto insetRect = bounds.reduced(4);
-        
         // draw a random path
-        Path randomPath;
-        Random r;
-        randomPath.startNewSubPath(insetRect.getX(),
-                                   insetRect.getY() + insetRect.getHeight() * r.nextFloat());
-        for ( auto x = insetRect.getX() + 1; x < insetRect.getRight(); x += 2 )
-        {
-            randomPath.lineTo(x,
-                              insetRect.getY() + insetRect.getHeight() * r.nextFloat());
-        }
+        // we don't need it to change every time we put our mouse on it
+        // so we put the code in the AnalyzerButton struct
 
-        g.strokePath(randomPath, PathStrokeType(1.f));
+        g.strokePath(analyzerButton->randomPath, PathStrokeType(1.f));
     }
 }
 
