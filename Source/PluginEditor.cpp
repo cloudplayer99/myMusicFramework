@@ -106,13 +106,13 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
 
         // draw a arc
         powerButton.addCentredArc(r.getCentreX(),
-            r.getCentreY(),
-            size * 0.5,
-            size * 0.5,
-            0.f,
-            degreesToRadians(ang),
-            degreesToRadians(360.f - ang),
-            true);
+                                  r.getCentreY(),
+                                  size * 0.5,
+                                  size * 0.5,
+                                  0.f,
+                                  degreesToRadians(ang),
+                                  degreesToRadians(360.f - ang),
+                                  true);
 
         // draw a vertical line
         powerButton.startNewSubPath(r.getCentreX(), r.getY());
@@ -829,8 +829,8 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
         if (auto* comp = safePtr.getComponent())
         {
             auto bypassed = comp->lowCutBypassButton.getToggleState();
-            comp->lowCutFreqSlider.setEnabled(!bypassed);
-            comp->lowCutSlopeSlider.setEnabled(!bypassed);
+            comp->lowCutFreqSlider.setEnabled( !bypassed );
+            comp->lowCutSlopeSlider.setEnabled( !bypassed );
         }
     };
 
@@ -839,8 +839,8 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
         if (auto* comp = safePtr.getComponent())
         {
             auto bypassed = comp->highCutBypassButton.getToggleState();
-            comp->highCutFreqSlider.setEnabled(!bypassed);
-            comp->highCutSlopeSlider.setEnabled(!bypassed);
+            comp->highCutFreqSlider.setEnabled( !bypassed );
+            comp->highCutSlopeSlider.setEnabled( !bypassed );
         }
     };
 
@@ -849,7 +849,7 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
         if (auto* comp = safePtr.getComponent())
         {
             auto enabled = comp->analyzerEnabledButton.getToggleState();
-            comp->responseCurveComponent.toggleAnalysisEnablement(enabled);
+            comp->responseCurveComponent.toggleAnalysisEnablement( enabled );
         }
     };
 
@@ -860,10 +860,26 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
     // maybe call this bug "initial problem"
     // we should record the state of the buttons
     // and coordinate these with the enablement
+    
+    // initial process
+    auto peakbypassed = peakBypassButton.getToggleState();
+    peakFreqSlider.setEnabled(!peakbypassed);
+    peakGainSlider.setEnabled(!peakbypassed);
+    peakQualitySlider.setEnabled(!peakbypassed);
 
+    auto lowCutbypassed = lowCutBypassButton.getToggleState();
+    lowCutFreqSlider.setEnabled(!lowCutbypassed);
+    lowCutSlopeSlider.setEnabled(!lowCutbypassed);
+
+    auto highCutbypassed = highCutBypassButton.getToggleState();
+    highCutFreqSlider.setEnabled(!highCutbypassed);
+    highCutSlopeSlider.setEnabled(!highCutbypassed);
+
+    auto analyerenabled = analyzerEnabledButton.getToggleState();
+    responseCurveComponent.toggleAnalysisEnablement(analyerenabled);
 
     // control the window size
-    setSize (600, 480);
+    setSize (480, 500);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -889,6 +905,54 @@ void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
     using namespace juce;
 
     g.fillAll(Colours::black);
+
+    Path curve;
+
+    auto bounds = getLocalBounds();
+    auto center = bounds.getCentre();
+
+    // draw the title
+    g.setFont(Font("Iosevka Term Slab", 30, 0)); //https://github.com/be5invis/Iosevka
+    String title{ "SIMPLE EQ" };
+    g.setFont(30);
+    auto titleWidth = g.getCurrentFont().getStringWidth(title);
+    curve.startNewSubPath(center.x, 32);
+    curve.lineTo(center.x - titleWidth * 0.45f, 32);
+    auto cornerSize = 20;
+    auto curvePos = curve.getCurrentPosition();
+    curve.quadraticTo(curvePos.getX() - cornerSize, 
+                      curvePos.getY(),
+                      curvePos.getX() - cornerSize, 
+                      curvePos.getY() - 16);
+    curvePos = curve.getCurrentPosition();
+    curve.quadraticTo(curvePos.getX(),
+                      2,
+                      curvePos.getX() - cornerSize,
+                      2);
+    curve.lineTo({ 0.f, 2.f });
+    curve.lineTo(0.f, 0.f);
+    curve.lineTo(center.x, 0.f);
+    curve.closeSubPath();
+    g.setColour(Colour(97u, 18u, 167u));
+    g.fillPath(curve);
+    curve.applyTransform(AffineTransform().scaled(-1, 1));
+    curve.applyTransform(AffineTransform().translated(getWidth(), 0));
+    g.fillPath(curve);
+    g.setColour(Colour(255u, 154u, 1u));
+    g.drawFittedText(title, bounds, juce::Justification::centredTop, 1);
+
+    // the function name of the sliders at the bottom
+    g.setColour(Colours::grey);
+    g.setFont(14);
+    g.drawFittedText("LowCut", lowCutSlopeSlider.getBounds(), juce::Justification::centredBottom, 1);
+    g.drawFittedText("Peak", peakQualitySlider.getBounds(), juce::Justification::centredBottom, 1);
+    g.drawFittedText("HighCut", highCutSlopeSlider.getBounds(), juce::Justification::centredBottom, 1);
+
+    // build time
+    auto buildDate = Time::getCompilationDate().toString(true, false);
+    auto buildTime = Time::getCompilationDate().toString(false, true);
+    g.setFont(12);
+    g.drawFittedText("Build: " + buildDate + "\n" + buildTime, highCutSlopeSlider.getBounds().withY(6), Justification::topRight, 2);
 
     /***************************************************************************/
 }
