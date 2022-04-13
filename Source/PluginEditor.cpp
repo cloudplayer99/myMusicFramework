@@ -81,52 +81,84 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
 {
     using namespace juce;
 
-    Path powerButton;
+    // Bypass Button
+    if ( auto* pb = dynamic_cast<PowerButton*>(&toggleButton) )
+    {
+        Path powerButton;
 
-    // start to draw
-    auto bounds = toggleButton.getLocalBounds();
-    // Auxiliary line
-    // inside the red line, the click is effective
-    g.setColour( Colours::red );
-    g.drawRect(bounds);
+        // start to draw
+        auto bounds = toggleButton.getLocalBounds();
+        // Auxiliary line
+        // inside the red line, the click is effective
+        //g.setColour(Colours::red);
+        //g.drawRect(bounds);
 
-    // use JUCE_LIVE_CONSTANT() to choose the suitable size
-    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
-    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+        // use JUCE_LIVE_CONSTANT() to choose the suitable size
+        auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
+        auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
 
-    float ang = 30.f;
+        float ang = 30.f;
 
-    size -= 6;
+        size -= 6;
 
-    // draw a arc
-    powerButton.addCentredArc(r.getCentreX(),
-                              r.getCentreY(),
-                              size * 0.5,
-                              size * 0.5,
-                              0.f,
-                              degreesToRadians(ang),
-                              degreesToRadians(360.f - ang),
-                              true);
-    
-    // draw a vertical line
-    powerButton.startNewSubPath(r.getCentreX(), r.getY());
-    powerButton.lineTo(r.getCentre());
+        // draw a arc
+        powerButton.addCentredArc(r.getCentreX(),
+            r.getCentreY(),
+            size * 0.5,
+            size * 0.5,
+            0.f,
+            degreesToRadians(ang),
+            degreesToRadians(360.f - ang),
+            true);
 
-    PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
+        // draw a vertical line
+        powerButton.startNewSubPath(r.getCentreX(), r.getY());
+        powerButton.lineTo(r.getCentre());
 
-    // choose color
-    auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
+        PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
 
-    g.setColour(color);
-    g.strokePath(powerButton, pst);
+        // choose color
+        auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
 
-    // draw ellipse
-    g.drawEllipse(r, 2);
-    
-    // little bug:
-    // click the whole region and the button is still response
-    // we need to set the hit test region
-    // but we don't do that
+        g.setColour(color);
+        g.strokePath(powerButton, pst);
+
+        // draw ellipse
+        g.drawEllipse(r, 2);
+
+        // little bug:
+        // click the whole region and the button is still response
+        // we need to set the hit test region
+        // but we don't do that
+    }
+
+    // Analyaer Button
+    // it would be cool to see a randomized path drawn inside of this button
+    // that reflects the fact that it is an analyzer
+    else if ( auto* analyzerButton = dynamic_cast<AnalyzerButton*>(&toggleButton) )
+    {
+        // choose color
+        auto color = !toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
+        g.setColour(color);
+
+        auto bounds = toggleButton.getLocalBounds();
+        g.drawRect(bounds);
+        
+        auto insetRect = bounds.reduced(4);
+        
+        // draw a random path
+        Path randomPath;
+        Random r;
+        randomPath.startNewSubPath(insetRect.getX(),
+                                   insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+        for ( auto x = insetRect.getX() + 1; x < insetRect.getRight(); x += 2 )
+        {
+            randomPath.lineTo(x,
+                              insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+        }
+
+        g.strokePath(randomPath, PathStrokeType(1.f));
+    }
 }
 
 
@@ -776,6 +808,7 @@ analyzerEnabledButtonAttachment(audioProcessor.apvts, "Analyzer Enabled", analyz
     peakBypassButton.setLookAndFeel(&lnf);
     lowCutBypassButton.setLookAndFeel(&lnf);
     highCutBypassButton.setLookAndFeel(&lnf);
+    analyzerEnabledButton.setLookAndFeel(&lnf);
 
     // control the window size
     setSize (600, 480);
@@ -786,6 +819,7 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
     peakBypassButton.setLookAndFeel(nullptr);
     lowCutBypassButton.setLookAndFeel(nullptr);
     highCutBypassButton.setLookAndFeel(nullptr);
+    analyzerEnabledButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -816,6 +850,17 @@ void SimpleEQAudioProcessorEditor::resized()
     // adjust positions of subcomponents
     
     auto bounds = getLocalBounds();
+
+    // set the analyzer enabled button
+    auto analyzerEnabledArea = bounds.removeFromTop(25);
+    analyzerEnabledArea.setWidth(100);
+    analyzerEnabledArea.setX(5);
+    analyzerEnabledArea.removeFromTop(2);
+
+    analyzerEnabledButton.setBounds(analyzerEnabledArea);
+
+    bounds.removeFromTop(5);
+
     float hRatio = 25.f / 100.f; //JUCE_LIVE_CONSTANT(33) / 100.f;
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
 
