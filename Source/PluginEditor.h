@@ -294,6 +294,11 @@ juce::Timer
     void paint(juce::Graphics& g) override;
     void resized() override;
 
+    void toggleAnalysisEnablement(bool enabled) 
+    {
+        shouldshowFFTAnalysis = enabled;
+    }
+
 private:
     SimpleEQAudioProcessor& audioProcessor;
     
@@ -316,6 +321,8 @@ private:
     //AnalyzerPathGenerator<juce::Path> pathProducer;
     //juce::Path leftChannelFFTPath;
     PathProducer leftPathProducer, rightPathProducer;
+
+    bool shouldshowFFTAnalysis = true;
 
 };
 
